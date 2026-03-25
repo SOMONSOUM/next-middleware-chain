@@ -1,0 +1,24 @@
+# Ignore source files (only keep dist)
+src/
+
+# TypeScript config and build configs
+tsconfig.json
+tsup.config.ts
+
+# Node modules
+node_modules/
+
+# Tests, docs, and editor files
+*.test.ts
+*.spec.ts
+*.md
+*.log
+.DS_Store
+
+# Git stuff
+.git/
+.gitignore
+
+# Optional: ignore example files or local scripts
+example/
+scripts/

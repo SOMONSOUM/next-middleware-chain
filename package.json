@@ -1,0 +1,51 @@
+{
+  "name": "next-mw-chain",
+  "version": "1.0.1",
+  "author": "SOUM SOMON",
+  "license": "MIT",
+  "description": "A fluent, composable middleware chain builder for Next.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SOMONSOUM/next-middleware-chain.git"
+  },
+  "homepage": "https://github.com/SOMONSOUM/next-middleware-chain",
+  "bugs": {
+    "url": "https://github.com/SOMONSOUM/next-middleware-chain/issues"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepare": "npm run build"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "peerDependencies": {
+    "next": ">=15.0.0",
+    "jwt-decode": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "jwt-decode": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "jwt-decode": "^4.0.0",
+    "next": "^16.2.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}
