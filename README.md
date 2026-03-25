@@ -5,14 +5,14 @@ A fluent, composable middleware chain builder for Next.js. Chain built-in and cu
 ## Installation
 
 ```bash
-npm install next-middleware-chain
+npm install next-mw-chain
 ```
 
 ## Quick Start
 
 ```typescript
 // proxy.ts or middleware.ts
-import { middlewareChain, type MiddlewareFactory } from "next-middleware-chain";
+import { middlewareChain, type MiddlewareFactory } from "next-mw-chain";
 import { NextResponse } from "next/server";
 import { myApi } from "@/lib/api";
 
@@ -189,7 +189,7 @@ middlewareChain().use(myMiddleware).build();
 Every middleware is a `MiddlewareFactory` — a function that receives the next handler and returns a new handler. Import the type to get full TypeScript support.
 
 ```typescript
-import type { MiddlewareFactory } from "next-middleware-chain";
+import type { MiddlewareFactory } from "next-mw-chain";
 import { NextResponse } from "next/server";
 
 const corsMiddleware: MiddlewareFactory = (next) => async (req, event, res) => {
@@ -225,8 +225,8 @@ const corsMiddleware: MiddlewareFactory = (next) => async (req, event, res) => {
 Implement the `RateLimitStore` interface to use any external store. Example with Upstash Redis:
 
 ```typescript
-import { middlewareChain } from "next-middleware-chain";
-import type { RateLimitStore } from "next-middleware-chain";
+import { middlewareChain } from "next-mw-chain";
+import type { RateLimitStore } from "next-mw-chain";
 import { Redis } from "@upstash/redis";
 
 class UpstashStore implements RateLimitStore {
