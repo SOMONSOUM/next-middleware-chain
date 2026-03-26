@@ -7,6 +7,14 @@
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "keywords": [
+    "nextjs",
+    "auth",
+    "refresh token",
+    "authentication",
+    "app router",
+    "middleware"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/SOMONSOUM/next-middleware-chain.git"
