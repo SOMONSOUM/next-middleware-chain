@@ -1,6 +1,6 @@
 {
   "name": "next-mw-chain",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": "SOUM SOMON",
   "license": "MIT",
   "description": "A fluent, composable middleware chain builder for Next.js",
