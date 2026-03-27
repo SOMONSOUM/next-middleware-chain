@@ -72,6 +72,7 @@ export function createRefreshTokenMiddleware(
     const refreshToken = request.cookies.get(refreshTokenName)?.value;
     const payload = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
     const response = NextResponse.next();
+    response.headers.set("Cache-Control", "no-store, max-age=0, s-maxage=0");
 
     if (refreshToken && isExpired(payload?.exp)) {
       try {
