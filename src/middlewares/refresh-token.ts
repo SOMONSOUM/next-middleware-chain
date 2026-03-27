@@ -67,33 +67,33 @@ export function createRefreshTokenMiddleware(
     httpOnly = true,
   } = cookieOptions;
 
-  return (next) =>
-    async (
-      request: NextRequest,
-      event: NextFetchEvent,
-      response: NextResponse,
-    ) => {
-      const accessToken = request.cookies.get(accessTokenName)?.value;
-      const refreshToken = request.cookies.get(refreshTokenName)?.value;
-      const payload = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
+  return (next) => async (request: NextRequest, event: NextFetchEvent) => {
+    const accessToken = request.cookies.get(accessTokenName)?.value;
+    const refreshToken = request.cookies.get(refreshTokenName)?.value;
+    const payload = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
+    const response = NextResponse.next();
 
-      if (refreshToken && isExpired(payload?.exp)) {
+    if (refreshToken && isExpired(payload?.exp)) {
+      try {
         const tokens = await refreshFn(refreshToken);
-        const opts = { httpOnly, maxAge, sameSite, secure };
 
         if (tokens?.accessToken && tokens?.refreshToken) {
-          const res = NextResponse.next();
-          res.cookies.set(accessTokenName, tokens.accessToken, opts);
-          res.cookies.set(refreshTokenName, tokens.refreshToken, opts);
-          return res;
+          const opts = { httpOnly, maxAge, sameSite, secure };
+          response.cookies.set(accessTokenName, tokens.accessToken, opts);
+          response.cookies.set(refreshTokenName, tokens.refreshToken, opts);
+          return response;
+        } else {
+          response.cookies.delete(accessTokenName);
+          response.cookies.delete(refreshTokenName);
+          return NextResponse.redirect(new URL(loginPath, request.url));
         }
-
-        const res = NextResponse.redirect(new URL(loginPath, request.url));
-        res.cookies.delete(accessTokenName);
-        res.cookies.delete(refreshTokenName);
-        return res;
+      } catch (error) {
+        response.cookies.delete(accessTokenName);
+        response.cookies.delete(refreshTokenName);
+        return NextResponse.redirect(new URL(loginPath, request.url));
       }
+    }
 
-      return next(request, event, response);
-    };
+    return next(request, event, response);
+  };
 }
