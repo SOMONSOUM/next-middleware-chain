@@ -10,7 +10,6 @@ export interface RefreshTokenConfig {
     refreshToken?: string;
   } | null>;
   loginPath?: string;
-  publicRoutes?: string[];
   /** Cookie names — override if yours differ */
   cookieNames?: {
     accessToken?: string;
@@ -51,7 +50,6 @@ export function createRefreshTokenMiddleware(
   const {
     refreshFn,
     loginPath = "/login",
-    publicRoutes = ["/login"],
     cookieNames = {},
     cookieOptions = {},
     isExpired = defaultIsExpired,
@@ -70,25 +68,15 @@ export function createRefreshTokenMiddleware(
   } = cookieOptions;
 
   return (next) => async (request: NextRequest, event: NextFetchEvent) => {
-    const { pathname } = request.nextUrl;
     const accessToken = request.cookies.get(accessTokenName)?.value;
     const refreshToken = request.cookies.get(refreshTokenName)?.value;
     const payload = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
     const response = NextResponse.next();
     response.headers.set("Cache-Control", "no-store, max-age=0, s-maxage=0");
-    const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
-    const clearCookies = () => {
-      response.cookies.delete(accessTokenName);
-      response.cookies.delete(refreshTokenName);
-    };
 
     if (!refreshToken) {
-      clearCookies();
-
-      if (!isPublic) {
-        return NextResponse.redirect(new URL(loginPath, request.url));
-      }
-
+      response.cookies.delete(accessTokenName);
+      response.cookies.delete(refreshTokenName);
       return next(request, event, response);
     }
 
@@ -104,10 +92,8 @@ export function createRefreshTokenMiddleware(
         }
         throw new Error("Invalid tokens");
       } catch (error) {
-        clearCookies();
-        if (!isPublic) {
-          return NextResponse.redirect(new URL(loginPath, request.url));
-        }
+        response.cookies.delete(accessTokenName);
+        response.cookies.delete(refreshTokenName);
         return response;
       }
     }
