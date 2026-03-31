@@ -102,6 +102,7 @@ export function createRefreshTokenMiddleware(
           response.cookies.set(refreshTokenName, tokens.refreshToken, opts);
           return response;
         }
+        throw new Error("Invalid tokens");
       } catch (error) {
         clearCookies();
         if (!isPublic) {
