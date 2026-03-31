@@ -10,6 +10,7 @@ export interface RefreshTokenConfig {
     refreshToken?: string;
   } | null>;
   loginPath?: string;
+  publicRoutes?: string[];
   /** Cookie names — override if yours differ */
   cookieNames?: {
     accessToken?: string;
@@ -50,6 +51,7 @@ export function createRefreshTokenMiddleware(
   const {
     refreshFn,
     loginPath = "/login",
+    publicRoutes = ["/login"],
     cookieNames = {},
     cookieOptions = {},
     isExpired = defaultIsExpired,
@@ -68,11 +70,27 @@ export function createRefreshTokenMiddleware(
   } = cookieOptions;
 
   return (next) => async (request: NextRequest, event: NextFetchEvent) => {
+    const { pathname } = request.nextUrl;
     const accessToken = request.cookies.get(accessTokenName)?.value;
     const refreshToken = request.cookies.get(refreshTokenName)?.value;
     const payload = accessToken ? jwtDecode<JwtPayload>(accessToken) : null;
     const response = NextResponse.next();
     response.headers.set("Cache-Control", "no-store, max-age=0, s-maxage=0");
+    const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
+    const clearCookies = () => {
+      response.cookies.delete(accessTokenName);
+      response.cookies.delete(refreshTokenName);
+    };
+
+    if (!refreshToken) {
+      clearCookies();
+
+      if (!isPublic) {
+        return NextResponse.redirect(new URL(loginPath, request.url));
+      }
+
+      return next(request, event, response);
+    }
 
     if (refreshToken && isExpired(payload?.exp)) {
       try {
@@ -83,15 +101,13 @@ export function createRefreshTokenMiddleware(
           response.cookies.set(accessTokenName, tokens.accessToken, opts);
           response.cookies.set(refreshTokenName, tokens.refreshToken, opts);
           return response;
-        } else {
-          response.cookies.delete(accessTokenName);
-          response.cookies.delete(refreshTokenName);
-          return NextResponse.redirect(new URL(loginPath, request.url));
         }
       } catch (error) {
-        response.cookies.delete(accessTokenName);
-        response.cookies.delete(refreshTokenName);
-        return NextResponse.redirect(new URL(loginPath, request.url));
+        clearCookies();
+        if (!isPublic) {
+          return NextResponse.redirect(new URL(loginPath, request.url));
+        }
+        return response;
       }
     }
 
